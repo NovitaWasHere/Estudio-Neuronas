@@ -53,13 +53,21 @@ training_data = scaler.inverse_transform(training_data)
 target_data = scaler.inverse_transform(target_data)
 
 # Predecimos con el modelo el resultado de duplicar un número específico
-input_number = 4947567899538753
+input_number = input("Introduce el valor a duplicar")
 normalized_number = scaler.transform([[input_number]])
 prediction = model.predict(normalized_number)
 output_number = scaler.inverse_transform(prediction)
 
 # Imprimimos los resultados
 print("\n%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
-print("El resultado de duplicar", input_number, "es", output_number[0, 0])
-print("Predicciones:")
+print("El resultado de duplicar", input_number, "es el siguiente = ", output_number[0])
+print("Predicciones posteriores:")
 print(scaler.inverse_transform(model.predict(training_data)).round())
+
+# Guardar el modelo en un archivo
+model.save("modelo_red_neuronal.h5")
+print("El modelo ha sido guardado correctamente.")
+
+
+
+
