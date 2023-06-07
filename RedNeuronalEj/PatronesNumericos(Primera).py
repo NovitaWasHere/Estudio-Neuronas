@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential
+from keras.models import model_from_json
 from keras.layers.core import Dense
 
 # Cargamos los datos de entrenamiento
@@ -64,9 +65,24 @@ print("El resultado de duplicar", input_number, "es el siguiente = ", output_num
 print("Predicciones posteriores:")
 print(scaler.inverse_transform(model.predict(training_data)).round())
 
-# Guardar el modelo en un archivo
-model.save("modelo_red_neuronal.h5")
-print("El modelo ha sido guardado correctamente.")
+model_json = model.to_json()
+with open("model.json", "w") as json_file:
+    json_file.write(model_json)
+# serializar los pesos a HDF5
+model.save_weights("model.h5")
+print("Modelo Guardado!")
+
+# cargar json y crear el modelo
+json_file = open('model.json', 'r')
+loaded_model_json = json_file.read()
+json_file.close()
+loaded_model = model_from_json(loaded_model_json)
+# cargar pesos al nuevo modelo
+loaded_model.load_weights("model.h5")
+print("Cargado modelo desde disco.")
+
+# Compilar modelo cargado y listo para usar.
+loaded_model.compile(loss='mean_squared_error', optimizer='adam', metrics=['binary_accuracy'])
 
 
 
