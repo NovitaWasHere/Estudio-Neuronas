@@ -1,5 +1,8 @@
 import numpy as np
+from keras.models import Sequential
+from keras.layers.core import Dense
 
+# Cargamos los datos de entrenamiento
 training_data = np.array([[-2.0], [0], [1], [2.0], [3.0], [4.0], [5.0], [6.0], [7.2], [8.4], [9.0], [10.0],
                           [11.0], [12.0], [13.0], [14.5], [15.0], [16.0], [17.0], [18.0], [19.0], [20.7],
                           [25.0], [30.0], [35.0], [40.0], [45.0], [50.0], [55.0], [70.5], [100.4],
@@ -8,7 +11,7 @@ training_data = np.array([[-2.0], [0], [1], [2.0], [3.0], [4.0], [5.0], [6.0], [
                           [3140.0], [3180.0], [3200.0], [3400.0], [3720.3], [4000.0],
                           [5140.0], [5180.0], [5200.0], [5400.0], [5720.3], [6000.0],
                           [7140.0], [7180.0], [7200.0], [7400.0], [7720.3], [8000.0]], dtype="float32")
-
+# Cargamos los resultados esperados
 target_data = np.array([[-4.0], [0], [2], [4.0], [6.0], [8.0], [10.0], [12.0], [14.4], [16.8], [18.0], [20.0],
                         [22.0], [24.0], [26.0], [29.0], [30.0], [32.0], [34.0], [36.0], [38.0], [41.4],
                         [50.0], [60.0], [70.0], [80.0], [90.0], [100.0], [110.0], [141.0], [200.8],
@@ -18,6 +21,7 @@ target_data = np.array([[-4.0], [0], [2], [4.0], [6.0], [8.0], [10.0], [12.0], [
                         [10280.0], [10360.0], [10400.0], [10800.0], [11440.6], [12000.0],
                         [14280.0], [14360.0], [14400.0], [14800.0], [15440.6], [16000.0]], dtype="float32")
 
+# Normalizamos los datos de entrada y salida en el rango [0, 1]
 training_min = np.min(training_data)
 training_max = np.max(training_data)
 training_data = (training_data - training_min) / (training_max - training_min)
@@ -26,22 +30,37 @@ target_min = np.min(target_data)
 target_max = np.max(target_data)
 target_data = (target_data - target_min) / (target_max - target_min)
 
-weights_1 = np.array([[1.8135366], [-0.41351247]])
-weights_2 = np.array([[1.7829062], [0.10378595]])
-weights_3 = np.array([[-0.2135827, 0.18380268]])
 
-def relu(x):
-    return np.maximum(0, x)
 
-def predict(x):
-    hidden_layer_1 = relu(np.dot(x, weights_1))
-    hidden_layer_2 = relu(np.dot(hidden_layer_1, weights_2))
-    output = np.dot(hidden_layer_2, weights_3)
-    return output
+# Creamos el modelo de red neuronal secuencial
+model = Sequential()
 
+model.add(Dense(128, input_dim=1, activation='relu'))
+model.add(Dense(68, activation='relu'))
+model.add(Dense(32, activation="relu"))
+model.add(Dense(16, activation="relu"))
+model.add(Dense(8, activation="relu"))
+model.add(Dense(1, activation='linear'))
+
+# Compilamos el modelo con la función de pérdida y el optimizador
+model.compile(loss='mean_squared_error',
+              optimizer='adam',
+              metrics=['mean_absolute_error'])
+
+# Entrenamos el modelo con los datos de entrenamiento
+model.fit(training_data, target_data, epochs=5000)
+
+# Evaluamos el modelo con los mismos datos de entrenamiento
+scores = model.evaluate(training_data, target_data)
+
+# Predecimos con el modelo el resultado de duplicar un número específico
 input_number = float(input("Introduce el valor a duplicar: "))
 normalized_number = (input_number - training_min) / (training_max - training_min)
-prediction = predict(np.array([[normalized_number]]))
+prediction = model.predict(np.array([[normalized_number]]))
 output_number = (prediction * (target_max - target_min)) + target_min
 
-print("El resultado de duplicar", input_number, "es el siguiente =", output_number[0])
+# Imprimimos los resultados
+print("\n%s: %.2f%%" % (model.metrics_names[1], scores[1] * 100))
+print("El resultado de duplicar", input_number, "es el siguiente = ", output_number[0])
+
+

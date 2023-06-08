@@ -60,8 +60,5 @@ output_number = (prediction * (target_max - target_min)) + target_min
 # Imprimimos los resultados
 print("\n%s: %.2f%%" % (model.metrics_names[1], scores[1] * 100))
 print("El resultado de duplicar", input_number, "es el siguiente = ", output_number[0])
-print("Predicciones posteriores:")
-predictions = model.predict(training_data)
-predictions = (predictions * (target_max - target_min)) + target_min
-print(predictions.round())
+
 
